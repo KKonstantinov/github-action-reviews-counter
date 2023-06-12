@@ -21,7 +21,7 @@ const run = async () => {
     }
 
     const prNumber = prData.number
-    const [repoOwner, repoName] = GITHUB_REPOSITORY.split('/')
+    const [repoOwner, repoName] = 'SpinUp-Digital/galeries-lafayette-sfcc'.split('/')
     const queryVars: Record<string, { type: string; value: unknown }> = {
       repoOwner: { type: 'String!', value: repoOwner },
       repoName: { type: 'String!', value: repoName },
@@ -67,19 +67,18 @@ const run = async () => {
       }
     } = await client.graphql(query, vars)
 
-    const reviews = data.repository.pullRequest.reviews.nodes.filter(review =>
-      collaboratorAssociation.includes(review.authorAssociation)
-    )
+    const reviews = data.repository.pullRequest.reviews.nodes;
 
     debug(`${reviews.length} total valid reviews`)
     Object.keys(ReviewState)
-      .filter(key => /^[a-zA-Z]+$/.test(key))
+      .filter(key => /^[a-zA-Z_]+$/.test(key))
       .forEach(stateName => {
         const stateReviewsCount = reviews.filter(review => review.state === ((stateName as unknown) as ReviewState))
           .length
-        const outputKey = stateName.toLowerCase()
+        const outputKey = stateName.toUpperCase()
         debug(`  ${outputKey}: ${stateReviewsCount.toLocaleString('en')}`)
-        core.setOutput(outputKey, stateReviewsCount)
+        //core.setOutput(outputKey, stateReviewsCount)
+        core.exportVariable('REVIEW_COUNTER_'+outputKey, stateReviewsCount)
       })
   } catch (err) {
     core.setFailed(err)
@@ -88,7 +87,7 @@ const run = async () => {
 
 enum ReviewState {
   APPROVED = 'APPROVED',
-  CHANGES_REQUESTED = 'CHANGED_REQUESTED',
+  CHANGES_REQUESTED = 'CHANGES_REQUESTED',
   COMMENTED = 'COMMENTED',
   DISMISSED = 'DISMISSED',
   PENDING = 'PENDING'

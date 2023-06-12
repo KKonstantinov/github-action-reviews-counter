@@ -11,13 +11,13 @@ inputs:
     description: 'GITHUB_TOKEN secret'
     required: true
 outputs:
-  approved:
+  REVIEW_COUNTER_APPROVED:
     description: 'Reviews allowing the pull request to merge.'
-  changes_requested:
+  REVIEW_COUNTER_CHANGES_REQUESTED:
     description: 'Reviews blocking the pull request from merging.'
-  commented:
+  REVIEW_COUNTER_COMMENTED:
     description: 'Informational reviews.'
-  dismissed:
+  REVIEW_COUNTER_DISMISSED:
     description: 'Reviews that have been dismissed.'
-  pending:
+  REVIEW_COUNTER_PENDING:
     description: 'Reviews that have not yet been submitted.'
