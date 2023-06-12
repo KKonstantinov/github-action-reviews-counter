@@ -8,17 +8,21 @@ const { debug } = core
 
 const run = async () => {
   try {
-    const client = getOctokit(core.getInput('repo-token', { required: true }))
-    const ghEvent = JSON.parse(await fs.promises.readFile(GITHUB_EVENT_PATH, 'utf8')) as {}
-    const prData = isPullRequest(ghEvent)
-      ? ghEvent.pull_request
-      : isPullRequestReview(ghEvent)
-      ? ghEvent.pull_request_review.pull_request
-      : undefined
-
-    if (prData === undefined) {
-      throw new Error('Failed to extract pull request data.')
+    //const client = getOctokit(core.getInput('repo-token', { required: true }))
+    const client = getOctokit('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');
+    const prData = {
+      number: 141
     }
+    // const ghEvent = JSON.parse(await fs.promises.readFile(GITHUB_EVENT_PATH, 'utf8')) as {}
+    // const prData = isPullRequest(ghEvent)
+    //   ? ghEvent.pull_request
+    //   : isPullRequestReview(ghEvent)
+    //   ? ghEvent.pull_request_review.pull_request
+    //   : undefined
+
+    // if (prData === undefined) {
+    //   throw new Error('Failed to extract pull request data.')
+    // }
 
     const prNumber = prData.number
     const [repoOwner, repoName] = 'SpinUp-Digital/galeries-lafayette-sfcc'.split('/')
@@ -38,8 +42,12 @@ const run = async () => {
           pullRequest(number: $prNumber) {
             reviews(first: 100) {
               nodes {
+                author {
+                  login
+                }
                 authorAssociation
                 state
+                submittedAt
               }
             }
           }
@@ -59,15 +67,54 @@ const run = async () => {
         pullRequest: {
           reviews: {
             nodes: {
-              authorAssociation: CommentAuthorAssociation
-              state: ReviewState
+              state: ReviewState,
+              author: {
+                login: string
+              },
+              submittedAt: string
             }[]
           }
         }
       }
     } = await client.graphql(query, vars)
 
-    const reviews = data.repository.pullRequest.reviews.nodes;
+    // const reviews = data.repository.pullRequest.reviews.nodes.filter(review =>
+    //   {
+    //     console.log(review)
+    //     return true;
+    //   }
+    // )
+
+    /**
+     * START OF Just get the latest review from each author.
+     */
+    /**
+     * @typedef {Object} Review
+     */
+    type Review = {
+      author: {
+        login: string;
+      };
+      state: ReviewState;
+      submittedAt: string;
+    };
+    
+    const sortedReviews = data.repository.pullRequest.reviews.nodes.sort((a: Review, b: Review) =>
+      new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime()
+    );
+    
+    const latestReviewsByAuthor: Record<string, Review> = sortedReviews.reduce((acc: Record<string, Review>, review: Review) => {
+      if (!acc[review.author.login] || new Date(acc[review.author.login].submittedAt).getTime() < new Date(review.submittedAt).getTime()) {
+        acc[review.author.login] = review;
+      }
+      return acc;
+    }, {});
+    
+    const reviews: Review[] = Object.values(latestReviewsByAuthor);
+
+    /**
+     * END OF Just get the latest review from each author.
+     */
 
     debug(`${reviews.length} total valid reviews`)
     Object.keys(ReviewState)
