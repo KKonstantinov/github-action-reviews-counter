@@ -14119,7 +14119,7 @@ const run = async () => {
             throw new Error('Failed to extract pull request data.');
         }
         const prNumber = prData.number;
-        const [repoOwner, repoName] = 'SpinUp-Digital/galeries-lafayette-sfcc'.split('/');
+        const [repoOwner, repoName] = GITHUB_REPOSITORY.split('/');
         const queryVars = {
             repoOwner: { type: 'String!', value: repoOwner },
             repoName: { type: 'String!', value: repoName },

@@ -22,7 +22,7 @@ const run = async () => {
     }
 
     const prNumber = prData.number
-    const [repoOwner, repoName] = 'SpinUp-Digital/galeries-lafayette-sfcc'.split('/')
+    const [repoOwner, repoName] = GITHUB_REPOSITORY.split('/')
     const queryVars: Record<string, { type: string; value: unknown }> = {
       repoOwner: { type: 'String!', value: repoOwner },
       repoName: { type: 'String!', value: repoName },
