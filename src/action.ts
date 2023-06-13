@@ -8,21 +8,18 @@ const { debug } = core
 
 const run = async () => {
   try {
-    //const client = getOctokit(core.getInput('repo-token', { required: true }))
-    const client = getOctokit('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');
-    const prData = {
-      number: 141
-    }
-    // const ghEvent = JSON.parse(await fs.promises.readFile(GITHUB_EVENT_PATH, 'utf8')) as {}
-    // const prData = isPullRequest(ghEvent)
-    //   ? ghEvent.pull_request
-    //   : isPullRequestReview(ghEvent)
-    //   ? ghEvent.pull_request_review.pull_request
-    //   : undefined
+    const client = getOctokit(core.getInput('repo-token', { required: true }))
 
-    // if (prData === undefined) {
-    //   throw new Error('Failed to extract pull request data.')
-    // }
+    const ghEvent = JSON.parse(await fs.promises.readFile(GITHUB_EVENT_PATH, 'utf8')) as {}
+    const prData = isPullRequest(ghEvent)
+      ? ghEvent.pull_request
+      : isPullRequestReview(ghEvent)
+      ? ghEvent.pull_request_review.pull_request
+      : undefined
+
+    if (prData === undefined) {
+      throw new Error('Failed to extract pull request data.')
+    }
 
     const prNumber = prData.number
     const [repoOwner, repoName] = 'SpinUp-Digital/galeries-lafayette-sfcc'.split('/')
