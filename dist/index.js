@@ -14097,27 +14097,27 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
+const fs_1 = __importDefault(__webpack_require__(747));
 const core = __importStar(__webpack_require__(470));
 const github_1 = __webpack_require__(469);
 const { GITHUB_EVENT_PATH, GITHUB_REPOSITORY } = process.env;
 const { debug } = core;
 const run = async () => {
     try {
-        //const client = getOctokit(core.getInput('repo-token', { required: true }))
-        const client = github_1.getOctokit('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');
-        const prData = {
-            number: 141
-        };
-        // const ghEvent = JSON.parse(await fs.promises.readFile(GITHUB_EVENT_PATH, 'utf8')) as {}
-        // const prData = isPullRequest(ghEvent)
-        //   ? ghEvent.pull_request
-        //   : isPullRequestReview(ghEvent)
-        //   ? ghEvent.pull_request_review.pull_request
-        //   : undefined
-        // if (prData === undefined) {
-        //   throw new Error('Failed to extract pull request data.')
-        // }
+        const client = github_1.getOctokit(core.getInput('repo-token', { required: true }));
+        const ghEvent = JSON.parse(await fs_1.default.promises.readFile(GITHUB_EVENT_PATH, 'utf8'));
+        const prData = isPullRequest(ghEvent)
+            ? ghEvent.pull_request
+            : isPullRequestReview(ghEvent)
+                ? ghEvent.pull_request_review.pull_request
+                : undefined;
+        if (prData === undefined) {
+            throw new Error('Failed to extract pull request data.');
+        }
         const prNumber = prData.number;
         const [repoOwner, repoName] = 'SpinUp-Digital/galeries-lafayette-sfcc'.split('/');
         const queryVars = {
